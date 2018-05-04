@@ -12,5 +12,5 @@ FLEX用のプログラム作成に数年間使用してきましたので、重�
 いずれも、Visual Studio 2013 Express版でビルドしましたので、それに合ったランタイムが必要かもしれません。
 
 (3)Driver.txt,Driver.hex,Console.txt,Console.hex
-私が使用している6809用のWindows仮想ドライブ対応のFLEX用Driver，Consoleルーチンです。
+　私が使用している6809用のWindows仮想ドライブ対応のFLEX用Driver，Consoleルーチンです。
 
