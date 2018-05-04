@@ -1,0 +1,94 @@
+0001		*
+0002		* CONSOLE I/O PROGRAM for 6809SBD
+0003		*
+0004		* 2018.03.01
+0005		*
+0006		*Extend ACIA 6850
+0007	F0BC					SCMD  	EQU  	$F0BC   		;CMD
+0008	F0BC					SSTS  	EQU  	SCMD    		;STATUS
+0009	F0BD					SDATA 	EQU  	SCMD+1  		;DATA
+0010		
+0011	0043					MRSTA 	EQU  	$43     		;master reset
+0012	0055					CLRTSA	EQU  	$55     		;RTS=H,1stopbit,non pari,8bit,16x
+0013	0015					SERTSA	EQU  	$15     		;RTS=L,1stopbit,non pari,8bit,16x
+0014		
+0015	CD00					START 	EQU  	$CD00   		
+0016		*
+0017	D3E5					      	ORG  	$D3E5			
+0018		*
+0019	D3E5	D370			INCHNE	FDB  	INNECH				
+0020	D3E7	D37D			IHNDLR	FDB  	IHND				
+0021	D3E9	FFFF			SWIVEC	FDB  	$FFFF				
+0022	D3EB	FFFF			IRQVEC	FDB  	$FFFF				
+0023	D3ED	D37C			TMOFF 	FDB  	RET				
+0024	D3EF	D37C			TMON  	FDB  	RET				
+0025	D3F1	D37C			TMINT 	FDB  	RET				
+0026	D3F3	F837			MONITR	FDB  	$F837				
+0027	D3F5	D399			TINIT 	FDB  	INIT				
+0028	D3F7	D38F			STAT  	FDB  	STATUS				
+0029	D3F9	D380			OUTCH 	FDB  	OUTPUT				
+0030	D3FB	D37E			INCH  	FDB  	INPUT				
+0031		*
+0032	D370					      	ORG  	$D370			
+0033		 
+0034	D370					INNECH	EQU  	*       		
+0035	D370	B6	F0BC		IN01  	LDA  	SSTS    		
+0036	D373	84	01			      	ANDA 	#$01    		
+0037	D375	27	F9			      	BEQ  	IN01    		
+0038	D377	B6	F0BD		      	LDA  	SDATA   		;get data
+0039	D37A	84	7F			      	ANDA 	#$7F    		
+0040	D37C	39				RET   	RTS  					
+0041		*
+0042		
+0043	D37D	3B				IHND  	RTI  					
+0044		
+0045		*
+0046	D37E					INPUT 	EQU  	*       		
+0047	D37E	8D	F0			      	BSR  	INNECH  		
+0048		*
+0049	D380					OUTPUT	EQU  	*       		
+0050	D380	34	02			      	PSHS 	A       		
+0051	D382	B6	F0BC		OUT01 	LDA  	SSTS    		
+0052	D385	84	02			      	ANDA 	#$02    		
+0053	D387	27	F9			      	BEQ  	OUT01   		
+0054	D389	35	02			      	PULS 	A       		
+0055	D38B	B7	F0BD		      	STA  	SDATA   		;send data
+0056	D38E	39				      	RTS  					
+0057		
+0058		*
+0059	D38F					STATUS	EQU  	*       		
+0060	D38F	34	02			      	PSHS 	A       		
+0061	D391	B6	F0BC		      	LDA  	SSTS    		
+0062	D394	84	01			      	ANDA 	#$01    		
+0063	D396	35	02			      	PULS 	A       		
+0064	D398	39				      	RTS  					
+0065		
+0066		*
+0067	D399					INIT  	EQU  	*       		
+0068		* initialize Extend ACIA(6850)
+0069	D399	86	43			      	LDA  	#MRSTA  		
+0070	D39B	B7	F0BC		      	STA  	SCMD    		
+0071	D39E	12				      	NOP  					
+0072	D39F	86	15			      	LDA  	#SERTSA 		;RTS=L,1stopbit,non pari,8bit,16x
+0073	D3A1	B7	F0BC		      	STA  	SCMD    		
+0074		*wait acia buffer empty
+0075	D3A4	B6	F0BD		INI2  	LDA  	SDATA   		dummy read
+0076	D3A7	B6	F0BC		      	LDA  	SSTS    		check buffer full
+0077	D3AA	84	01			      	ANDA 	#$01    		
+0078	D3AC	26	F6			      	BNE  	INI2    		
+0079	D3AE	39				      	RTS  					
+0080		*
+0081		*************************************************
+0082	D3AF							END  	START			
+
+0 error(s),  0 warning(s) is detected.
+
+Label	address
+CLRTSA	0055	IHND	D37D	IHNDLR	D3E7	IN01	D370
+INCH	D3FB	INCHNE	D3E5	INI2	D3A4	INIT	D399
+INNECH	D370	INPUT	D37E	IRQVEC	D3EB	MONITR	D3F3
+MRSTA	0043	OUT01	D382	OUTCH	D3F9	OUTPUT	D380
+RET 	D37C	SCMD	F0BC	SDATA	F0BD	SERTSA	0015
+SSTS	F0BC	START	CD00	STAT	D3F7	STATUS	D38F
+SWIVEC	D3E9	TINIT	D3F5	TMINT	D3F1	TMOFF	D3ED
+TMON	D3EF	
